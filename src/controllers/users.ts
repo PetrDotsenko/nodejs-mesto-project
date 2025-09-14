@@ -1,12 +1,13 @@
 import { Request, Response, NextFunction } from 'express';
 import mongoose from 'mongoose';
-import User, { IUser } from '../models/user';
+import User from '../models/user';
 import { BadRequestError, NotFoundError } from '../errors/errors';
+import { STATUS_OK, STATUS_CREATED } from '../constants/statusCodes';
 
 export const getUsers = async (req: Request, res: Response, next: NextFunction) => {
   try {
     const users = await User.find({});
-    res.send(users);
+    res.status(STATUS_OK).send(users);
   } catch (err) {
     next(err);
   }
@@ -22,7 +23,7 @@ export const getUserById = async (req: Request, res: Response, next: NextFunctio
     if (!user) {
       throw new NotFoundError('Пользователь не найден');
     }
-    res.send(user);
+    res.status(STATUS_OK).send(user);
   } catch (err) {
     next(err);
   }
@@ -32,7 +33,7 @@ export const createUser = async (req: Request, res: Response, next: NextFunction
   try {
     const { name, about, avatar } = req.body;
     const newUser = await User.create({ name, about, avatar });
-    res.status(201).send(newUser);
+    res.status(STATUS_CREATED).send(newUser);
   } catch (err: any) {
     if (err.name === 'ValidationError') {
       next(new BadRequestError('Переданы некорректные данные при создании пользователя.'));
@@ -56,7 +57,7 @@ export const updateProfile = async (req: Request, res: Response, next: NextFunct
     if (!updated) {
       throw new NotFoundError('Пользователь с указанным _id не найден.');
     }
-    res.send(updated);
+    res.status(STATUS_OK).send(updated);
   } catch (err: any) {
     if (err.name === 'ValidationError') {
       next(new BadRequestError('Переданы некорректные данные при обновлении профиля.'));
@@ -80,7 +81,7 @@ export const updateAvatar = async (req: Request, res: Response, next: NextFuncti
     if (!updated) {
       throw new NotFoundError('Пользователь с указанным _id не найден.');
     }
-    res.send(updated);
+    res.status(STATUS_OK).send(updated);
   } catch (err: any) {
     if (err.name === 'ValidationError') {
       next(new BadRequestError('Переданы некорректные данные при обновлении аватара.'));

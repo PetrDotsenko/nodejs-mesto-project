@@ -2,11 +2,12 @@ import { Request, Response, NextFunction } from 'express';
 import mongoose from 'mongoose';
 import Card from '../models/card';
 import { BadRequestError, NotFoundError, ForbiddenError } from '../errors/errors';
+import { STATUS_OK, STATUS_CREATED } from '../constants/statusCodes';
 
 export const getCards = async (req: Request, res: Response, next: NextFunction) => {
   try {
     const cards = await Card.find({}).populate('owner').populate('likes');
-    res.send(cards);
+    res.status(STATUS_OK).send(cards);
   } catch (err) {
     next(err);
   }
@@ -19,7 +20,7 @@ export const createCard = async (req: Request, res: Response, next: NextFunction
 
     const { name, link } = req.body;
     const card = await Card.create({ name, link, owner: ownerId });
-    res.status(201).send(card);
+    res.status(STATUS_CREATED).send(card);
   } catch (err: any) {
     if (err.name === 'ValidationError') {
       next(new BadRequestError('Переданы некорректные данные при создании карточки.'));
@@ -49,7 +50,7 @@ export const deleteCard = async (req: Request, res: Response, next: NextFunction
     }
 
     await Card.findByIdAndDelete(cardId);
-    res.send({ message: 'Карточка удалена' });
+    res.status(STATUS_OK).send({ message: 'Карточка удалена' });
   } catch (err) {
     next(err);
   }
@@ -72,7 +73,7 @@ export const likeCard = async (req: Request, res: Response, next: NextFunction) 
       throw new NotFoundError('Карточка не найдена.');
     }
 
-    res.send(updated);
+    res.status(STATUS_OK).send(updated);
   } catch (err) {
     next(err);
   }
@@ -95,7 +96,7 @@ export const dislikeCard = async (req: Request, res: Response, next: NextFunctio
       throw new NotFoundError('Карточка не найдена.');
     }
 
-    res.send(updated);
+    res.status(STATUS_OK).send(updated);
   } catch (err) {
     next(err);
   }
