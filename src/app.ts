@@ -1,42 +1,73 @@
+import dotenv from 'dotenv';
+dotenv.config();
+
 import express, { Request, Response, NextFunction } from 'express';
 import mongoose from 'mongoose';
 import bodyParser from 'body-parser';
+import cookieParser from 'cookie-parser';
+import expressWinston from 'express-winston';
+import winston from 'winston';
+import { errors as celebrateErrors, celebrate } from 'celebrate';
+
 import routes from './routes';
-import reqUser from './middlewares/reqUser';
+import auth from './middlewares/auth';
 import notFound from './middlewares/notFound';
 import errorHandler from './middlewares/errorHandler';
+
+import {
+  createUser,
+  login,
+} from './controllers/users';
+
+import { signupValidation, signinValidation } from './validators';
 
 const { PORT = 3000 } = process.env;
 
 const app = express();
 
 app.use(bodyParser.json());
+app.use(cookieParser());
 
-// Подключение к MongoDB
+app.use(expressWinston.logger({
+  transports: [
+    new winston.transports.File({ filename: 'request.log' }),
+  ],
+  format: winston.format.json(),
+  meta: true,
+  msg: '{{req.method}} {{req.url}} {{res.statusCode}} {{res.responseTime}}ms',
+  expressFormat: false,
+  colorize: false,
+}));
+
+app.post('/signup', celebrate(signupValidation), createUser);
+app.post('/signin', celebrate(signinValidation), login);
+
+app.use(auth);
+
+app.use('/', routes);
+
+app.use(notFound);
+
+app.use(expressWinston.errorLogger({
+  transports: [
+    new winston.transports.File({ filename: 'error.log' }),
+  ],
+  format: winston.format.json(),
+}));
+
+app.use(celebrateErrors());
+
+app.use(errorHandler);
+
 mongoose.connect('mongodb://localhost:27017/mestodb')
   .then(() => {
-    // eslint-disable-next-line no-console
     console.log('Connected to MongoDB');
   })
   .catch((err) => {
-    // eslint-disable-next-line no-console
     console.error('MongoDB connection error:', err);
   });
 
-// Временная авторизация (хардкод пользователя) — как в ТЗ
-app.use(reqUser);
-
-// Роуты
-app.use('/', routes);
-
-// 404
-app.use(notFound);
-
-// Централизованная обработка ошибок
-app.use(errorHandler);
-
 app.listen(PORT, () => {
-  // eslint-disable-next-line no-console
   console.log(`App listening on port ${PORT}`);
 });
 

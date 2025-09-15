@@ -2,6 +2,8 @@
 logs
 *.log
 npm-debug.log*
+request.log
+error.log
 
 # Dependency directory
 node_modules
@@ -16,3 +18,5 @@ node_modules
 
 # Typescript build
 dist
+
+.env

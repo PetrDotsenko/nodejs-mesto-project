@@ -2,6 +2,9 @@ import {
   STATUS_BAD_REQUEST,
   STATUS_NOT_FOUND,
   STATUS_FORBIDDEN,
+  STATUS_INTERNAL,
+  STATUS_UNAUTHORIZED,
+  STATUS_CONFLICT,
 } from '../constants/statusCodes';
 
 export class BadRequestError extends Error {
@@ -25,5 +28,21 @@ export class ForbiddenError extends Error {
   constructor(message = 'Forbidden') {
     super(message);
     this.statusCode = STATUS_FORBIDDEN;
+  }
+}
+
+export class UnauthorizedError extends Error {
+  statusCode: number;
+  constructor(message = 'Unauthorized') {
+    super(message);
+    this.statusCode = STATUS_UNAUTHORIZED;
+  }
+}
+
+export class ConflictError extends Error {
+  statusCode: number;
+  constructor(message = 'Conflict') {
+    super(message);
+    this.statusCode = STATUS_CONFLICT;
   }
 }
