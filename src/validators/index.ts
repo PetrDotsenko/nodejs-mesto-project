@@ -2,6 +2,8 @@ import { Joi, Segments } from 'celebrate';
 
 const urlRegex = /^(https?:\/\/)(www\.)?[\w\-._~:/?#[\]@!$&'()*+,;=]+#?$/;
 
+export const objectId = Joi.string().hex().length(24).required();
+
 export const signupValidation = {
   [Segments.BODY]: Joi.object().keys({
     name: Joi.string().min(2).max(30).optional(),
@@ -28,13 +30,13 @@ export const cardCreateValidation = {
 
 export const userIdParamValidation = {
   [Segments.PARAMS]: Joi.object().keys({
-    userId: Joi.string().hex().length(24).required(),
+    userId: objectId,
   }),
 };
 
 export const cardIdParamValidation = {
   [Segments.PARAMS]: Joi.object().keys({
-    cardId: Joi.string().hex().length(24).required(),
+    cardId: objectId,
   }),
 };
 

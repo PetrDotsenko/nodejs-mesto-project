@@ -1,4 +1,5 @@
 import { Router } from 'express';
+import { celebrate } from 'celebrate';
 import {
   getCards,
   createCard,
@@ -6,13 +7,14 @@ import {
   likeCard,
   dislikeCard,
 } from '../controllers/cards';
+import { cardCreateValidation, cardIdParamValidation } from '../validators';
 
 const router = Router();
 
 router.get('/', getCards);
-router.post('/', createCard);
-router.delete('/:cardId', deleteCard);
-router.put('/:cardId/likes', likeCard);
-router.delete('/:cardId/likes', dislikeCard);
+router.post('/', celebrate(cardCreateValidation), createCard);
+router.delete('/:cardId', celebrate(cardIdParamValidation), deleteCard);
+router.put('/:cardId/likes', celebrate(cardIdParamValidation), likeCard);
+router.delete('/:cardId/likes', celebrate(cardIdParamValidation), dislikeCard);
 
 export default router;
